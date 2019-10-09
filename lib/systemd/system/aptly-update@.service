@@ -1,6 +1,7 @@
 [Unit]
 Description=Import Debian packages from /var/aptly/inbox/%i into Aptly, then create & publish a new snapshot.
 ConditionPathIsDirectory=/var/aptly/inbox/%i
+ConditionDirectoryNotEmpty=/var/aptly/inbox/%i
 
 [Service]
 Type=oneshot
