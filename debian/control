@@ -7,4 +7,4 @@ Build-Depends:
 Depends: aptly
 Essential: no
 Maintainer: Eth Morgan <eth@ethulhu.co.uk>
-Description: Aptly configuration & automation for a local Debian package server.
+Description: Aptly configuration & automation for a local Debian package server
