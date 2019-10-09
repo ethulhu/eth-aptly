@@ -24,3 +24,9 @@ if ! directory_exists /var/aptly/inbox; then
 	mkdir -p /var/aptly/inbox
 	chown -R aptly:aptly /var/aptly/inbox
 fi
+
+if ! directory_exists /var/aptly/gnupg; then
+	mkdir -p /var/aptly/gnupg
+	chown -R aptly:aptly /var/aptly/gnupg
+	chmod -R go-rwx /var/aptly/gnupg
+fi

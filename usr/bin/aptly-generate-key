@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -eux
+
+env GNUPGHOME=/var/aptly/gnupg gpg1 --gen-key
