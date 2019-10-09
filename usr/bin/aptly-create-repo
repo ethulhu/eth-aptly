@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ ! "${1}" ]; then
+	echo "usage: aptly-create-repo <distribution>"
+	exit 1
+fi
+
+DISTRIBUTION="${1}"; shift
+
+set -eux
+
+INBOX="/var/aptly/inbox/${DISTRIBUTION}"
+mkdir -p "${INBOX}"
+chown -R aptly:aptly-inbox "${INBOX}"
+chmod g+s "${INBOX}"
+setfacl -m "default:group::rwx" "${INBOX}"
+
+aptly repo create "-distribution=${DISTRIBUTION}" -component=main "${DISTRIBUTION}"
+
+systemctl enable "aptly-update@${DISTRIBUTION}.timer"
+systemctl start "aptly-update@${DISTRIBUTION}.timer"
