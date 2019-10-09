@@ -1,0 +1,10 @@
+Source: eth-aptly
+Package: eth-aptly
+Section: misc
+Priority: optional
+Architecture: all
+Build-Depends:
+Depends: aptly
+Essential: no
+Maintainer: Eth Morgan <eth@ethulhu.co.uk>
+Description: Aptly configuration & automation for a local Debian package server.

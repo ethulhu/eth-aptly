@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -eux
+
+user_exists() { getent passwd $1; }
+group_exists() { getent group $1; }
+directory_exists() { test -d $1; }
+
+if ! user_exists aptly; then
+	useradd --system aptly
+fi
+
+if ! group_exists aptly-inbox; then
+	groupadd aptly-inbox
+fi
+
+if ! directory_exists /var/aptly; then
+	mkdir -p /var/aptly
+	chown -R aptly:aptly /var/aptly
+fi
+
+if ! directory_exists /var/aptly/inbox; then
+	mkdir -p /var/aptly/inbox
+	chown -R aptly:aptly-inbox /var/aptly
+	chmod -R g+w /var/aptly
+fi
