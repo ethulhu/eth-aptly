@@ -22,6 +22,5 @@ fi
 
 if ! directory_exists /var/aptly/inbox; then
 	mkdir -p /var/aptly/inbox
-	chown -R aptly:aptly-inbox /var/aptly
-	chmod -R g+w /var/aptly
+	chown -R aptly:aptly /var/aptly/inbox
 fi
