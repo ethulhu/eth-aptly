@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ ! "${1}" ]; then
+	echo "usage: aptly-update <distribution>"
+	exit 1
+fi
+
+DISTRIBUTION="${1}"; shift
+
+set -eux
+
+export GNUPGHOME=/var/aptly/gnupg
+
+VERSION="$(date --utc +%Y%m%d.%H%M)"
+SNAPSHOT="${DISTRIBUTION}-${VERSION}"
+
+aptly repo add -remove-files "${DISTRIBUTION}" "/var/aptly/inbox/${DISTRIBUTION}"
+aptly snapshot create ${SNAPSHOT} from repo ${DISTRIBUTION}
+aptly publish switch -batch ${DISTRIBUTION} ${SNAPSHOT}
