@@ -12,6 +12,7 @@ fi
 
 if ! group_exists aptly-inbox; then
 	groupadd aptly-inbox
+	usermod -G aptly-inbox -a aptly
 fi
 
 if ! directory_exists /var/aptly; then
