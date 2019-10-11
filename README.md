@@ -1,6 +1,6 @@
 # eth-aptly
 
-a configuration & tooling package for managing Debian repositories with http://aptly.io.
+a configuration & tooling package for managing Debian repositories with https://www.aptly.info/.
 
 ## building
 
