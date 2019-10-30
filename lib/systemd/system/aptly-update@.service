@@ -6,4 +6,4 @@ ConditionDirectoryNotEmpty=/var/aptly/inbox/%i
 [Service]
 Type=oneshot
 User=aptly
-ExecStart=/usr/bin/aptly-update %i
+ExecStart=/usr/bin/aptlyctl import-and-update %i
