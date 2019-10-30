@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""high-level Aptly control utility."""
+
+import argparse
+import datetime
+import inspect
+import os
+import subprocess
+
+from typing import List
+
+ENV = os.environ.copy()
+ENV['GNUPGHOME'] = '/var/aptly/gnupg'
+
+VERSION = datetime.datetime.now().strftime('%Y%m%d.%H%M')
+
+COMMANDS = []
+
+
+def command(func):
+    COMMANDS.append(func)
+    return func
+
+
+def run_cmd(argv: List[str]):
+    subprocess.run(argv, check=True, env=ENV)
+
+# commands.
+
+
+@command
+def update_snapshot(distribution: str):
+    """create and publish a snapshot with the current repo contents."""
+    snapshot = f'distribution-{VERSION}'
+    run_cmd(['aptly', 'snapshot', 'create',
+             snapshot, 'from', 'repo', distribution])
+    run_cmd(['aptly', 'publish', 'switch', '-batch', distribution, snapshot])
+
+
+@command
+def create_and_publish_first_snapshot(distribution: str):
+    """create and publish the first snapshot of a repo."""
+    snapshot = f'distribution-{VERSION}'
+    run_cmd(['aptly', 'snapshot', 'create',
+             snapshot, 'from', 'repo', distribution])
+    run_cmd(['aptly', 'publish', 'snapshot', snapshot])
+
+
+@command
+def fetch_packages(distribution: str):
+    """fetch and import packages from the inbox to the repo."""
+    inbox = f'/var/aptly/inbox/{distribution}'
+    run_cmd(['aptly', 'repo', 'add', '-remove-files', distribution, inbox])
+
+
+@command
+def import_and_update(distribution: str):
+    """import new packages, then publish them."""
+    fetch_packages(distribution)
+    update_snapshot(distribution)
+
+
+@command
+def rebuild_repo(distribution: str):
+    """rebuild a repo, archiving the old one, for e.g. architecture changes."""
+    archive = f'{distribution}-archive-{VERSION}'
+    run_cmd(['aptly', 'repo', 'rename', distribution, archive])
+    run_cmd(['aptly', 'repo', 'create',
+             f'-distribution={distribution}', '-component=main', distribution])
+    run_cmd(['aptly', 'repo', 'move', archive, distribution, 'Name (~ .*)'])
+    run_cmd(['aptly', 'publish', 'drop', distribution])
+    run_cmd(['aptly', 'repo', 'drop', archive])
+    create_and_publish_first_snapshot(distribution)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    subs = parser.add_subparsers()
+
+    for func in COMMANDS:
+        name = func.__name__.replace('_', '-')
+        desc = inspect.getdoc(func)
+
+        cmd = subs.add_parser(name, help=desc, description=desc)
+        cmd.set_defaults(func=func)
+
+        signature = inspect.signature(func)
+        for parameter in signature.parameters.values():
+            if parameter.default == inspect.Parameter.empty:
+                if parameter.annotation == bool:
+                    cmd.add_argument(parameter.name, action='store_true')
+                else:
+                    cmd.add_argument(parameter.name, type=parameter.annotation)
+            else:
+                if parameter.annotation == bool:
+                    action = 'store_false' if parameter.default else 'store_true'
+                    cmd.add_argument('--' + parameter.name, action=action)
+                else:
+                    cmd.add_argument(
+                        '--' + parameter.name, type=parameter.annotation, default=parameter.default)
+
+    args = parser.parse_args()
+
+    if 'func' not in args:
+        parser.print_help()
+    else:
+        try:
+            args.func(*[vars(args)[p]
+                        for p in inspect.signature(args.func).parameters])
+        except KeyboardInterrupt:
+            print()
