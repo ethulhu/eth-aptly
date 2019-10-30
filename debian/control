@@ -4,7 +4,7 @@ Section: misc
 Priority: optional
 Architecture: all
 Build-Depends:
-Depends: aptly
+Depends: aptly, gnupg1
 Essential: no
 Maintainer: Eth Morgan <eth@ethulhu.co.uk>
 Description: Aptly configuration & automation for a local Debian package server
