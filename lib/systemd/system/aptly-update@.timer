@@ -2,7 +2,8 @@
 Description=Periodic import & publish of Debian packages for distribution %i
 
 [Timer]
-OnCalendar=hourly
+# every 15 minutes.
+OnCalendar=*:0/15
 Persistent=true
 
 [Install]
